@@ -7,20 +7,22 @@ console.log('==> server.js starting...');
 console.log('==> MONGO_URI present:', !!process.env.MONGO_URI);
 console.log('==> JWT_SECRET present:', !!process.env.JWT_SECRET);
 console.log('==> PORT:', process.env.PORT);
+console.log('==> Loading routes...');
 
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/items');
 
+console.log('==> Routes loaded OK');
+
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────────────────────
-// Allow all origins (required for Render deployment)
 app.use(cors());
 app.use(express.json());
 
 // ── Routes ──────────────────────────────────────────────────────────────────
-app.use('/api', authRoutes);       // /api/register  /api/login
-app.use('/api/items', itemRoutes); // /api/items/...
+app.use('/api', authRoutes);
+app.use('/api/items', itemRoutes);
 
 // ── Health check ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -30,15 +32,27 @@ app.get('/', (req, res) => {
 // ── MongoDB connection ────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
+console.log('==> Attempting MongoDB connection...');
+
+// Handle uncaught promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('==> Unhandled Rejection:', reason);
+  process.exit(1);
+});
+
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000, // 10 second timeout
+    socketTimeoutMS: 45000,
+  })
   .then(() => {
-    console.log('MongoDB connected');
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    console.log('==> MongoDB connected successfully!');
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`==> Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
+    console.error('==> MongoDB connection FAILED:', err.message);
+    console.error('==> Full error:', err);
     process.exit(1);
   });

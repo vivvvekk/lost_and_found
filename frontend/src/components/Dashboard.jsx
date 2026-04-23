@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://lost-and-found-1-xbsq.onrender.com';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const getAuthHeader = () => ({
