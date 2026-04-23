@@ -3,18 +3,19 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
+console.log('==> server.js starting...');
+console.log('==> MONGO_URI present:', !!process.env.MONGO_URI);
+console.log('==> JWT_SECRET present:', !!process.env.JWT_SECRET);
+console.log('==> PORT:', process.env.PORT);
+
 const authRoutes = require('./routes/auth');
 const itemRoutes = require('./routes/items');
 
 const app = express();
 
 // ── Middleware ──────────────────────────────────────────────────────────────
-app.use(
-  cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-    credentials: true,
-  })
-);
+// Allow all origins (required for Render deployment)
+app.use(cors());
 app.use(express.json());
 
 // ── Routes ──────────────────────────────────────────────────────────────────
